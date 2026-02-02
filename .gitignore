@@ -1,0 +1,36 @@
+# System
+.DS_Store
+
+# Virtual Environment
+venv/
+
+# Environment Variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Logs
+*.log
+backend.log
+nodered.log
+
+# Large Models
+*.pt
+*.onnx
+
+# Media (Videos/Images)
+*.mp4
+*.jpg
+*.png
+*.jpeg
+
+# IDE / Editor
+.vscode/
+.idea/
+
+# Agent
+.agent/

@@ -1,0 +1,10 @@
+supervision==0.27.0
+numpy==2.3.5
+inference==0.64.6
+opencv-python-headless==4.10.0.84
+fastapi==0.115.11
+uvicorn==0.34.0
+pillow==11.3.0
+ultralytics==8.4.9
+python-dotenv==1.0.1
+python-multipart==0.0.12
