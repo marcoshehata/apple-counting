@@ -1,0 +1,101 @@
+# System Files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.ipynb_checkpoints/
+
+# Virtual Environments
+venv/
+venv_optimized/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Models & Weights (Large Binaries)
+models/
+*.pt
+*.onnx
+*.engine
+*.weights
+*.bin
+*.h5
+*.tflite
+
+# Media & Data
+apple_tree_360view.mp4
+*.mp4
+*.avi
+*.mov
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.project
+.pydevproject
+.settings/
+
+# Node-RED & Node.js
+node_modules/
+nodered/node_modules/
+nodered/.config.runtime.json
+nodered/.config.users.json
+nodered/lib/
+
+# Agent & AI Artifacts
+.agent/
+brain/
+walkthrough.md
+implementation_plan.md
+task.md
+
+# Logs
+*.log
+backend.log
+nodered.log

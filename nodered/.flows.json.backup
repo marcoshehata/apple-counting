@@ -1,0 +1,358 @@
+[
+    {
+        "id": "2f1e4696b37bb041",
+        "type": "tab",
+        "label": "🍎 Modular Vision Split",
+        "disabled": false
+    },
+    {
+        "id": "sub_det",
+        "type": "subflow",
+        "name": "Video Object Detection",
+        "category": "Vision AI",
+        "in": [
+            {
+                "x": 60,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "det_prep"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 520,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "det_extract",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "API_URL",
+                "type": "str",
+                "value": "http://127.0.0.1:8000/detect"
+            }
+        ],
+        "color": "#EF4444",
+        "icon": "font-awesome/fa-search"
+    },
+    {
+        "id": "sub_seg",
+        "type": "subflow",
+        "name": "Video Segmentation",
+        "category": "Vision AI",
+        "in": [
+            {
+                "x": 60,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "seg_prep"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 520,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "seg_extract",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "API_URL",
+                "type": "str",
+                "value": "http://127.0.0.1:8000/segment"
+            }
+        ],
+        "color": "#3B82F6",
+        "icon": "font-awesome/fa-magic"
+    },
+    {
+        "id": "det_prep",
+        "type": "function",
+        "z": "sub_det",
+        "name": "Prep",
+        "func": "msg.url = env.get('API_URL');\nmsg.method = 'POST';\nmsg.headers = {'content-type': 'multipart/form-data'};\nmsg.payload = {image: {value: msg.image, options: {filename: 'f.jpg'}}};\nreturn msg;",
+        "outputs": 1,
+        "x": 180,
+        "y": 80,
+        "wires": [
+            [
+                "det_http"
+            ]
+        ]
+    },
+    {
+        "id": "det_http",
+        "type": "http request",
+        "z": "sub_det",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "url": "",
+        "x": 300,
+        "y": 80,
+        "wires": [
+            [
+                "det_extract"
+            ]
+        ]
+    },
+    {
+        "id": "det_extract",
+        "type": "function",
+        "z": "sub_det",
+        "name": "Extract",
+        "func": "msg.detections = msg.payload.detections || [];\nmsg.count = msg.payload.count;\nmsg.width = msg.payload.width;\nmsg.height = msg.payload.height;\nreturn msg;",
+        "outputs": 1,
+        "x": 420,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "seg_prep",
+        "type": "function",
+        "z": "sub_seg",
+        "name": "Prep",
+        "func": "msg.url = env.get('API_URL');\nmsg.method = 'POST';\nmsg.headers = {'content-type': 'multipart/form-data'};\nmsg.payload = {image: {value: msg.image, options: {filename: 'f.jpg'}}};\nreturn msg;",
+        "outputs": 1,
+        "x": 180,
+        "y": 80,
+        "wires": [
+            [
+                "seg_http"
+            ]
+        ]
+    },
+    {
+        "id": "seg_http",
+        "type": "http request",
+        "z": "sub_seg",
+        "name": "",
+        "method": "use",
+        "ret": "obj",
+        "url": "",
+        "x": 300,
+        "y": 80,
+        "wires": [
+            [
+                "seg_extract"
+            ]
+        ]
+    },
+    {
+        "id": "seg_extract",
+        "type": "function",
+        "z": "sub_seg",
+        "name": "Extract",
+        "func": "msg.segments = msg.payload.segments || [];\nmsg.width = msg.payload.width;\nmsg.height = msg.payload.height;\nreturn msg;",
+        "outputs": 1,
+        "x": 420,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ui_det_in",
+        "type": "http in",
+        "z": "2f1e4696b37bb041",
+        "name": "",
+        "url": "/app-identification",
+        "method": "get",
+        "x": 110,
+        "y": 60,
+        "wires": [
+            [
+                "ui_det_html"
+            ]
+        ]
+    },
+    {
+        "id": "ui_det_html",
+        "type": "template",
+        "z": "2f1e4696b37bb041",
+        "name": "Identification UI",
+        "field": "payload",
+        "template": "<!DOCTYPE html><html><head><title>Apple Identification</title><link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap' rel='stylesheet'><style>body{font-family:Inter,sans-serif;background:#f0f2f5;padding:20px;margin:0}h1{text-align:center;margin-bottom:20px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.card{background:#fff;border-radius:12px;padding:15px;box-shadow:0 2px 10px rgba(0,0,0,.1)}.video-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:8px;overflow:hidden}video,canvas{width:100%;height:100%;object-fit:contain;position:absolute;top:0;left:0}canvas{pointer-events:none}.stats{display:flex;gap:20px;justify-content:center;margin-top:20px}.stat{background:#fff;padding:15px 30px;border-radius:8px;text-align:center}.drop{border:2px dashed #ccc;padding:30px;text-align:center;cursor:pointer;margin-bottom:20px;background:#fff;border-radius:12px}</style></head><body><h1>🍎 Apple Identification</h1><div class='drop' onclick='document.getElementById(\"f\").click()'>Load Video<input type='file' id='f' style='display:none'></div><div class='grid'><div class='card'><h3>Original Video</h3><div class='video-wrap'><video id='v' playsinline muted controls></video></div></div><div class='card'><h3>Processed (Identification)</h3><div class='video-wrap'><video id='v_dummy' style='visibility:hidden'></video><canvas id='c'></canvas></div></div></div><div class='stats'><div class='stat'><b>Count:</b> <span id='s1'>0</span></div><div class='stat'><b>Latency:</b> <span id='s2'>0</span>ms</div></div><script>const v=document.getElementById('v'),c=document.getElementById('c'),ctx=c.getContext('2d');let fId=0,flight=0,lastData=null;document.getElementById('f').onchange=e=>{v.src=URL.createObjectURL(e.target.files[0]);v.onloadedmetadata=()=>{c.width=v.videoWidth;c.height=v.videoHeight;fetch('http://127.0.0.1:8000/reset');v.play();requestAnimationFrame(draw);processLoop();}};function draw(){if(!v.paused&&!v.ended){ctx.drawImage(v,0,0,c.width,c.height);if(lastData)render(lastData);}requestAnimationFrame(draw);}async function processLoop(){if(v.paused||v.ended){if(flight===0)setTimeout(processLoop,100);else requestAnimationFrame(processLoop);return;}if(flight<2){const tmp=document.createElement('canvas');tmp.width=640;tmp.height=(640*v.videoHeight)/v.videoWidth;tmp.getContext('2d').drawImage(v,0,0,tmp.width,tmp.height);flight++;const start=Date.now();tmp.toBlob(blob=>{const fd=new FormData();fd.append('image',blob);fd.append('frame_id',fId++);fetch('/process-det',{method:'POST',body:fd}).then(r=>r.json()).then(data=>{flight--;lastData=data;document.getElementById('s1').textContent=data.count||0;document.getElementById('s2').textContent=Date.now()-start;}).catch(()=>{flight--;});},'image/jpeg',0.8);}setTimeout(processLoop,30);}function render(data){const sx=c.width/(data.width||1),sy=c.height/(data.height||1);(data.detections||[]).forEach(d=>{const[x1,y1,x2,y2]=d.bbox.map((v,i)=>v*(i%2?sy:sx));ctx.fillStyle='rgba(255,0,0,0.5)';ctx.fillRect(x1,y1,x2-x1,y2-y1);ctx.strokeStyle='red';ctx.lineWidth=2;ctx.strokeRect(x1,y1,x2-x1,y2-y1);ctx.fillStyle='white';ctx.font='bold 18px Inter';ctx.fillText('#'+d.tracker_id,x1+5,y1-8);});}</script></body></html>",
+        "output": "str",
+        "x": 380,
+        "y": 60,
+        "wires": [
+            [
+                "ui_det_out"
+            ]
+        ]
+    },
+    {
+        "id": "ui_det_out",
+        "type": "http response",
+        "z": "2f1e4696b37bb041",
+        "name": "",
+        "x": 590,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "ui_seg_in",
+        "type": "http in",
+        "z": "2f1e4696b37bb041",
+        "name": "",
+        "url": "/app-segmentation",
+        "method": "get",
+        "x": 110,
+        "y": 140,
+        "wires": [
+            [
+                "ui_seg_html"
+            ]
+        ]
+    },
+    {
+        "id": "ui_seg_html",
+        "type": "template",
+        "z": "2f1e4696b37bb041",
+        "name": "Segmentation UI",
+        "field": "payload",
+        "template": "<!DOCTYPE html><html><head><title>Apple Segmentation</title><link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap' rel='stylesheet'><style>body{font-family:Inter,sans-serif;background:#f0f2f5;padding:20px;margin:0}h1{text-align:center;margin-bottom:20px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.card{background:#fff;border-radius:12px;padding:15px;box-shadow:0 2px 10px rgba(0,0,0,.1)}.video-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:8px;overflow:hidden}video,canvas{width:100%;height:100%;object-fit:contain;position:absolute;top:0;left:0}canvas{pointer-events:none}.stats{display:flex;gap:20px;justify-content:center;margin-top:20px}.stat{background:#fff;padding:15px 30px;border-radius:8px;text-align:center}.drop{border:2px dashed #ccc;padding:30px;text-align:center;cursor:pointer;margin-bottom:20px;background:#fff;border-radius:12px}</style></head><body><h1>🍎 Apple Segmentation</h1><div class='drop' onclick='document.getElementById(\"f\").click()'>Load Video<input type='file' id='f' style='display:none'></div><div class='grid'><div class='card'><h3>Original Video</h3><div class='video-wrap'><video id='v' playsinline muted controls></video></div></div><div class='card'><h3>Processed (Segmentation)</h3><div class='video-wrap'><video id='v_dummy' style='visibility:hidden'></video><canvas id='c'></canvas></div></div></div><div class='stats'><div class='stat'><b>Count:</b> <span id='s1'>0</span></div><div class='stat'><b>Latency:</b> <span id='s2'>0</span>ms</div></div><script>const v=document.getElementById('v'),c=document.getElementById('c'),ctx=c.getContext('2d');let fId=0,flight=0,lastData=null;document.getElementById('f').onchange=e=>{v.src=URL.createObjectURL(e.target.files[0]);v.onloadedmetadata=()=>{c.width=v.videoWidth;c.height=v.videoHeight;fetch('http://127.0.0.1:8000/reset');v.play();requestAnimationFrame(draw);processLoop();}};function draw(){if(!v.paused&&!v.ended){ctx.drawImage(v,0,0,c.width,c.height);ctx.fillStyle='rgba(0,0,255,0.7)';ctx.fillRect(0,0,c.width,c.height);if(lastData)render(lastData);}requestAnimationFrame(draw);}async function processLoop(){if(v.paused||v.ended){if(flight===0)setTimeout(processLoop,100);else requestAnimationFrame(processLoop);return;}if(flight<2){const tmp=document.createElement('canvas');tmp.width=640;tmp.height=(640*v.videoHeight)/v.videoWidth;tmp.getContext('2d').drawImage(v,0,0,tmp.width,tmp.height);flight++;const start=Date.now();tmp.toBlob(blob=>{const fd=new FormData();fd.append('image',blob);fd.append('frame_id',fId++);fetch('/process-seg',{method:'POST',body:fd}).then(r=>r.json()).then(data=>{flight--;lastData=data;document.getElementById('s1').textContent=data.count||0;document.getElementById('s2').textContent=Date.now()-start;}).catch(()=>{flight--;});},'image/jpeg',0.8);}setTimeout(processLoop,30);}function render(data){const sx=c.width/(data.width||1),sy=c.height/(data.height||1);(data.segments||[]).forEach(s=>{if(s.polygon&&s.polygon.length>0){ctx.beginPath();s.polygon.forEach((p,i)=>{const x=p[0]*sx,y=p[1]*sy;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.closePath();ctx.fillStyle='rgba(255,0,0,0.7)';ctx.fill();ctx.strokeStyle='red';ctx.lineWidth=2;ctx.stroke();}});}</script></body></html>",
+        "output": "str",
+        "x": 390,
+        "y": 140,
+        "wires": [
+            [
+                "ui_seg_out"
+            ]
+        ]
+    },
+    {
+        "id": "ui_seg_out",
+        "type": "http response",
+        "z": "2f1e4696b37bb041",
+        "name": "",
+        "x": 590,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "proc_det_in",
+        "type": "http in",
+        "z": "2f1e4696b37bb041",
+        "name": "",
+        "url": "/process-det",
+        "method": "post",
+        "upload": true,
+        "x": 110,
+        "y": 240,
+        "wires": [
+            [
+                "parse_det"
+            ]
+        ]
+    },
+    {
+        "id": "parse_det",
+        "type": "function",
+        "z": "2f1e4696b37bb041",
+        "name": "Parse",
+        "func": "if(msg.req.files&&msg.req.files.length>0){msg.image=msg.req.files[0].buffer;}return msg;",
+        "outputs": 1,
+        "x": 290,
+        "y": 240,
+        "wires": [
+            [
+                "det_node_call"
+            ]
+        ]
+    },
+    {
+        "id": "det_node_call",
+        "type": "subflow:sub_det",
+        "z": "2f1e4696b37bb041",
+        "name": "",
+        "x": 510,
+        "y": 240,
+        "wires": [
+            [
+                "proc_det_out"
+            ]
+        ]
+    },
+    {
+        "id": "proc_det_out",
+        "type": "http response",
+        "z": "2f1e4696b37bb041",
+        "name": "",
+        "x": 690,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "proc_seg_in",
+        "type": "http in",
+        "z": "2f1e4696b37bb041",
+        "name": "",
+        "url": "/process-seg",
+        "method": "post",
+        "upload": true,
+        "x": 110,
+        "y": 320,
+        "wires": [
+            [
+                "parse_seg"
+            ]
+        ]
+    },
+    {
+        "id": "parse_seg",
+        "type": "function",
+        "z": "2f1e4696b37bb041",
+        "name": "Parse",
+        "func": "if(msg.req.files&&msg.req.files.length>0){msg.image=msg.req.files[0].buffer;}return msg;",
+        "outputs": 1,
+        "x": 290,
+        "y": 320,
+        "wires": [
+            [
+                "seg_node_call"
+            ]
+        ]
+    },
+    {
+        "id": "seg_node_call",
+        "type": "subflow:sub_seg",
+        "z": "2f1e4696b37bb041",
+        "name": "",
+        "x": 500,
+        "y": 320,
+        "wires": [
+            [
+                "proc_seg_out"
+            ]
+        ]
+    },
+    {
+        "id": "proc_seg_out",
+        "type": "http response",
+        "z": "2f1e4696b37bb041",
+        "name": "",
+        "x": 690,
+        "y": 320,
+        "wires": []
+    }
+]
